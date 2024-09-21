@@ -28,3 +28,32 @@
     z-index: 100;
   }
   
+  /* Stickers - Smaller, circular, and positioned on top of images */
+  .sticker {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .sticker img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%; /* Circular stickers */
+  }
+  
+  
+  .download-btn {
+    display: block; /* Center the button */
+    margin: 20px auto; /* Center the button and add top margin */
+    padding: 10px 20px;
+    background-color: #F7A8CE;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .download-btn:hover {
+    background-color: #F7A8CE;
+  }

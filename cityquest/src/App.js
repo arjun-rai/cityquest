@@ -166,8 +166,8 @@ function App() {
         // Hide the tile corresponding to this index
         setHiddenLocations((prevHiddenLocations) => [...prevHiddenLocations, index]);
       } else {
-        setSnackbarMessage('Invalid image');
-        setCurrentSnackbar('Invalid image'); // Ensure the current snackbar message is set
+        setSnackbarMessage('Not the right place! >:O');
+        setCurrentSnackbar('Not the right place >:O'); // Ensure the current snackbar message is set
         setShowSnackbar(true);
       }
     });
