@@ -26,6 +26,8 @@ def handler(event, context):
 
     class Query(BaseModel):
         is_location: bool = Field(description="Is the picture at the location")
+        silly_score: int = Field(description='how silly/funny/goofy is this image from 0-10?') 
+
 
     try:
 
@@ -35,7 +37,7 @@ def handler(event, context):
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": 'is this picture at {LOCATION}'.format(LOCATION=LOCATION)},
+                        {"type": "text", "text": 'is this picture at {LOCATION}? How funny/silly/goofy is this image from 0-10?'.format(LOCATION=LOCATION)},
                         {
                             "type": "image_url",
                             "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},

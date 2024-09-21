@@ -64,6 +64,8 @@ function App() {
 
   const [showDownloadButton, setShowDownloadButton] = useState(false);
 
+  const [sillyScore, setSillyScore] = useState(0)
+
   const images = [
     'image2.png',
   ];
@@ -164,7 +166,7 @@ function App() {
         ]);
         setCurrentSnackbar(`Overview: ${data['data']['locations'][index]['overview']}`);
         setShowSnackbar(true);
-
+        setSillyScore(sillyScore+response['data']['silly_score'])
         // Hide the tile corresponding to this index
         setHiddenLocations((prevHiddenLocations) => [...prevHiddenLocations, index]);
       } else {
@@ -328,10 +330,10 @@ function App() {
               {!submittedCity && locations.length === 0 ? (
                 <form onSubmit={handleSubmit}>
                   <Typography variant="h4" gutterBottom align="center">
-                    What city are you in?
+                    Where are you?
                   </Typography>
                   <TextField
-                    label="Enter your city"
+                    label="Enter your Location"
                     variant="outlined"
                     fullWidth
                     value={city}
@@ -473,6 +475,7 @@ function App() {
         {done && (
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
             <Typography variant="h5">Your time: {formatTime(timer)}</Typography>
+            <Typography variant="h5">Silly Score: {sillyScore}/{originalImages.length*10}</Typography>
           </div>
         )}
       </Container>

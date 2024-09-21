@@ -16,14 +16,14 @@ def handler(event, context):
     clientOA = instructor.patch(OpenAI(api_key=os.environ["OPENAI_API_KEY"]))
 
     class place(BaseModel):
-        location: str = Field(description='place in city to visit')
+        location: str = Field(description='place in/near location to visit')
         overview: str = Field(description='one sentence summary of the location')
         facts: str = Field(description='3 fun facts about the location')
         lat: float = Field(description='latitude of location')
         lng: float = Field(description='longitude of location')
 
     class locations(BaseModel):
-        locations: List[place]=Field(description="locations to visit in the city")
+        locations: List[place]=Field(description="places to visit at the location")
 
     locations_to_visit = clientOA.chat.completions.create(
                 model="gpt-4o",
