@@ -62,6 +62,8 @@ function App() {
 
   const [originalImages, setOriginalImages] = useState([]);
 
+  const [showDownloadButton, setShowDownloadButton] = useState(false);
+
   const images = [
     'image2.png',
   ];
@@ -233,6 +235,7 @@ function App() {
     setDone(true);
     setIsTimerRunning(false);
     setConfettiVisible(true);
+    setShowDownloadButton(true);
   };
 
   const formatTime = (seconds) => {
@@ -254,6 +257,8 @@ function App() {
   const handleLandingPageContinue = () => {
     setShowLandingPage(false);
   };
+
+  const allImagesHidden = locations.length > 0 && hiddenLocations.length === locations.length;
 
   return (
     <ThemeProvider theme={theme}>
@@ -389,7 +394,7 @@ function App() {
                 </div>
               ) : (
                 <div style={{ marginTop: '20px', overflowY: 'auto', maxHeight: '70vh' }}>
-                   {originalImages.length > 0 && <Scrapbook images={originalImages} />}
+                   {originalImages.length > 0 && <Scrapbook images={originalImages} showButton={done}/>}
                   <Grid container spacing={2}>
                     {locations.map((loc, index) => (
                       !hiddenLocations.includes(index) && (
@@ -438,6 +443,7 @@ function App() {
                     variant="contained"
                     style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }}
                     onClick={handleDone}
+                    disabled={!allImagesHidden}
                   >
                     I'm done!
                   </Button>
