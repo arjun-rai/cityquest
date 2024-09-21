@@ -76,6 +76,30 @@ function App() {
     setLandingImage(images[randomIndex]);
   };
 
+  // New function to get user's location
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation({ lat: latitude, lng: longitude });
+      });
+    }
+  };
+
+  // Effect to get user's location when component mounts
+  useEffect(() => {
+    getUserLocation();
+  }, []);
+
+  // Update map markers whenever locations change
+  useEffect(() => {
+    const markers = locations.map((loc) => ({
+      name: loc.name,
+      position: { lat: loc.latitude, lng: loc.longitude } // Ensure latitude/longitude are available
+    }));
+    setMapMarkers(markers);
+  }, [locations]);
+
   useEffect(() => {
     if (showLandingPage) {
       getRandomLandingImage();
@@ -253,6 +277,12 @@ function App() {
 
   const handleLandingPageContinue = () => {
     setShowLandingPage(false);
+  };
+
+  // Before the return statement, define the map container styles
+  const containerStyle = {
+    width: '100%',
+    height: '400px'
   };
 
   return (
@@ -469,6 +499,24 @@ function App() {
             <Typography variant="h5">Your time: {formatTime(timer)}</Typography>
           </div>
         )}
+
+        {/* Google Maps section */}
+        <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+          {userLocation && (
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              center={userLocation}
+              zoom={10}
+            >
+              {/* Mark the user's location */}
+              <Marker position={userLocation} />
+              {/* Mark locations fetched */}
+              {mapMarkers.map((marker, index) => (
+                <Marker key={index} position={marker.position} />
+              ))}
+            </GoogleMap>
+          )}
+        </LoadScript>
       </Container>
     </ThemeProvider>
   );
