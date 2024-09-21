@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import Confetti from 'react-confetti';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from 'axios';
 
 const theme = createTheme({
   typography: {
@@ -42,6 +43,8 @@ function App() {
   const [done, setDone] = useState(false);
   const [confettiVisible, setConfettiVisible] = useState(false);
 
+  const [data, setData] = useState('');
+
   useEffect(() => {
     let interval;
     if (isTimerRunning) {
@@ -65,7 +68,7 @@ function App() {
     setCity(event.target.value);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setSubmittedCity(city);
     setCity('');
@@ -79,12 +82,22 @@ function App() {
     setNumLocations(event.target.value);
   };
 
-  const handleFetchLocations = () => {
-    const fetchedLocations = Array.from({ length: numLocations }, (_, index) => ({
-      number: index + 1,
-      name: `Location ${index + 1}`,
-    }));
-    setLocations(fetchedLocations);
+  const handleFetchLocations = async () => {
+    await axios.get(
+      'https://wkq9bdzy81.execute-api.us-east-1.amazonaws.com/default/cityquest-backend-dev-handler?location=' + submittedCity + '&transportation=' + distanceOption + '&num_places=' + numLocations
+    ).then(function (response)
+    {
+      // console.log(response);
+      setData(response);
+      const fetchedLocations = Array.from({ length: numLocations }, (_, index) => ({
+        number: index + 1,
+        name: response['data']['locations'][index]['location'],
+      }));
+      setLocations(fetchedLocations);
+
+      return response;
+
+    });
     setShowTimer(true);
     setIsTimerRunning(true);
     setSubmittedCity('');
@@ -93,6 +106,7 @@ function App() {
   };
 
   const handleUploadImage = () => {
+
     setShowSnackbar(true);
   };
 
@@ -235,8 +249,8 @@ function App() {
                 {locations.map((loc) => (
                   <Grid item xs={12} sm={6} md={4} key={loc.number}>
                     <Card style={{ padding: '20px', marginBottom: '20px', textAlign: 'center' }}>
-                      <Typography variant="h6">Location {loc.number}</Typography>
-                      <Typography variant="body1">{loc.name}</Typography>
+                      <Typography variant="h6">{loc.name}</Typography>
+                      <Typography variant="body1">Location {loc.number}</Typography>
                       <Button
                         variant="outlined"
                         style={{ marginTop: '10px', borderColor: '#F7A8CE', color: '#F7A8CE' }} // Pastel pink button

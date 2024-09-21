@@ -30,6 +30,9 @@ def handler(event, context):
     body = locations_to_visit.model_dump()
     
 
-    response = {"statusCode": 200, "body": json.dumps(body)}
+    response = {"statusCode": 200, "headers": {
+      "Access-Control-Allow-Origin": "*", 
+      "Access-Control-Allow-Credentials": True, 
+    }, "body": json.dumps(body)}
 
     return response
