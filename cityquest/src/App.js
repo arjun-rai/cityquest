@@ -186,7 +186,7 @@ const App = () => {
                 ☀️ {/* Sun emoji for light mode */}
               </ToggleButton>
               <ToggleButton value="dark" aria-label="dark mode">
-                🌙 {/* Moon emoji for dark mode */}
+                🌙 {/* Moon emoji for dark mode yay emojis*/}
               </ToggleButton>
             </ToggleButtonGroup>
           </Toolbar>
@@ -288,7 +288,8 @@ const App = () => {
                     onClick={handleFetchLocations}
                     disabled={!numLocations || !distanceOption}
                   >
-                    It's questin' time!
+                    It's questin' time!  {/* Morbin time */}
+
                   </Button>
                 </div>
               ) : (
