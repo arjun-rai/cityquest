@@ -1,3 +1,9 @@
 .App {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
+  padding: 20px; /* Optional: Add some padding */
+  box-sizing: border-box; /* Include padding in width/height calculations */
 }
