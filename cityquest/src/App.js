@@ -128,7 +128,7 @@ function App() {
           flexDirection: 'column',
           justifyContent: 'center',
 
-          opacity: 0.5, // THIS IS THE OPACITY, YOU CAN CHANGE IT IF YOU WANT, LOOK FOR THIS LINE
+          opacity: 0.7, // THIS IS THE OPACITY, YOU CAN CHANGE IT IF YOU WANT, LOOK FOR THIS LINE
         }}
       >
         {/* Header Section with Bar */}

@@ -34,10 +34,10 @@
 }
 
 @keyframes changeBackground {
-  0% { background-image: url('http://www.sumit4allphotography.com/wp-content/uploads/2015/04/paris-013.jpg'); }
-  20% { background-image: url('https://mcdn.wallpapersafari.com/medium/34/85/Mo6QS7.jpg'); }
-  40% { background-image: url('http://www.citypictures.net/data/media/245/The_Coliseum_at_Night_Rome_Italy.jpg'); }
-  60% { background-image: url('https://besttraveltips.net/wp-content/uploads/2024/09/3cd77737-e1e4-4729-890c-b1ddc0e375d5_0.png'); }
-  80% { background-image: url('https://upload.wikimedia.org/wikipedia/commons/8/8e/Big_Ben%2C_Londres%2C_Inglaterra%2C_2014-08-11%2C_DD_199.JPG'); }
-  100% { background-image: url('http://www.sumit4allphotography.com/wp-content/uploads/2015/04/paris-013.jpg'); }
+  0% { background-image: url('http://www.sumit4allphotography.com/wp-content/uploads/2015/04/paris-013.jpg'); } /* Eiffel Tower */
+  20% { background-image: url('https://mcdn.wallpapersafari.com/medium/34/85/Mo6QS7.jpg'); } /* Delicate Arch */
+  40% { background-image: url('https://www.istockphoto.com/photos/coliseum-rome-vertical-italy'); } /* Coliseum */
+  60% { background-image: url('https://news.rice.edu/news/2018/rice-university-announces-new-program-dramatically-expand-scholarships-middle-class'); } /* Golden Gate Bridge */
+  80% { background-image: url('https://upload.wikimedia.org/wikipedia/commons/8/8e/Big_Ben%2C_Londres%2C_Inglaterra%2C_2014-08-11%2C_DD_199.JPG'); } /* Big Ben */
+  100% { background-image: url('https://www.publicdomainpictures.net/pictures/200000/velka/statue-of-liberty-1478886052TG1.jpg'); } /* Eiffel Tower */
 }
