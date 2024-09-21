@@ -1,26 +1,30 @@
 .scrapbook {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 10px;
+    position: relative;
+    margin: 0 auto;
+    border: 2px solid #ccc;
+    overflow: hidden;
+    background-color: #f9f9f9;
+    transition: width 0.5s ease, height 0.5s ease; /* Smooth resizing */
   }
   
   .scrapbook-item {
-    margin: 10px;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    overflow: hidden;
-    width: calc(30% - 20px); /* Adjust width as needed */
-    transition: transform 0.3s;
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    transition: transform 0.3s ease;
   }
   
   .scrapbook-item img {
     width: 100%;
-    height: auto;
-    display: block;
+    height: 100%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
   }
   
   .scrapbook-item:hover {
-    transform: scale(1.05);
+    transform: scale(1.1);
+    z-index: 100;
   }
   

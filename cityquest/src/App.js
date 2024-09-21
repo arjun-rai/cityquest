@@ -389,6 +389,7 @@ function App() {
                 </div>
               ) : (
                 <div style={{ marginTop: '20px', overflowY: 'auto', maxHeight: '70vh' }}>
+                   {originalImages.length > 0 && <Scrapbook images={originalImages} />}
                   <Grid container spacing={2}>
                     {locations.map((loc, index) => (
                       !hiddenLocations.includes(index) && (
