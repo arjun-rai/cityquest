@@ -255,10 +255,6 @@ function App() {
                     <Card style={{ padding: '20px', marginBottom: '20px', textAlign: 'center' }}>
                       <Typography variant="h6">Location {loc.number}</Typography>
                       <Typography variant="body1">{loc.name}</Typography>
-                      
-                      {randomImage && (
-                        <img src={randomImage} alt="Random Location" style={{ width: '100%', height: 'auto', marginTop: '10px' }} />
-                      )}
 
                       <Button
                         variant="outlined"
