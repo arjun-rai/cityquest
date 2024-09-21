@@ -18,6 +18,8 @@ import {
 import Confetti from 'react-confetti';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
+import Scrapbook from './Scrapbook';
+
 
 const theme = createTheme({
   typography: {
@@ -46,7 +48,6 @@ function App() {
   const [confettiVisible, setConfettiVisible] = useState(false);
   const [imageUrl, setImageUrl] = useState([]);
 
-  const [showImage, setShowImage] = useState([])
 
   const [data, setData] = useState('');
   const [randomImage, setRandomImage] = useState('');
@@ -58,6 +59,8 @@ function App() {
 
   const [snackbarQueue, setSnackbarQueue] = useState([]);
   const [currentSnackbar, setCurrentSnackbar] = useState('');
+
+  const [originalImages, setOriginalImages] = useState([]);
 
   const images = [
     'image1.jpg',
@@ -143,9 +146,6 @@ function App() {
 
 
   const handleUploadImage = async (index) => {
-    // console.log(imageUrl[index]);
-    // console.log('https://bkeppsbsb0.execute-api.us-east-1.amazonaws.com/default/cityquest-image-checker-dev-handler?location=' + locations[index]['name'] + '&base64_image=' + imageUrl[index])
-
     await axios.post(
       'https://bkeppsbsb0.execute-api.us-east-1.amazonaws.com/default/cityquest-image-checker-dev-handler?location=' + encodeURIComponent(locations[index]['name']),
       {
@@ -157,7 +157,6 @@ function App() {
         },
       }
     ).then(function (response) {
-      // console.log(response);
       if (response['data']['is_location'] === true) {
         setSnackbarQueue([
           `Overview: ${data['data']['locations'][index]['overview']}`,
@@ -170,11 +169,10 @@ function App() {
         setHiddenLocations((prevHiddenLocations) => [...prevHiddenLocations, index]);
       } else {
         setSnackbarMessage('Invalid image');
+        setCurrentSnackbar('Invalid image'); // Ensure the current snackbar message is set
         setShowSnackbar(true);
       }
-      return response;
     });
-    
   };
 
   const handleImageChange = (index) => (event) => {
@@ -215,6 +213,13 @@ function App() {
             const newImageUrls = [...prevImageUrls];
             newImageUrls[index] = base64String; // Set the base64 string at the specified index
             return newImageUrls;
+          });
+
+          // Store the original image for preview
+          setOriginalImages((prevOriginalImages) => {
+            const newOriginalImages = [...prevOriginalImages];
+            newOriginalImages[index] = reader.result; // Set the original image at the specified index
+            return newOriginalImages;
           });
         };
       };
@@ -407,9 +412,9 @@ function App() {
                             >
                               Upload Picture
                             </Button>
-                            {imageUrl[index] && (
+                            {originalImages[index] && (
                               <img
-                                src={`data:image/jpeg;base64,${imageUrl[index]}`}
+                                src={originalImages[index]}
                                 alt="Selected"
                                 style={{
                                   marginTop: '10px',
