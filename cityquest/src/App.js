@@ -21,6 +21,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 const theme = createTheme({
   typography: {
     fontFamily: 'Mali, cursive', // Apply Mali font
+    fontWeightBold: 700, // Set bold weight
   },
   palette: {
     primary: {
@@ -126,6 +127,8 @@ function App() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
+
+          opacity: 0.5, // THIS IS THE OPACITY, YOU CAN CHANGE IT IF YOU WANT, LOOK FOR THIS LINE
         }}
       >
         {/* Header Section with Bar */}
@@ -284,3 +287,4 @@ function App() {
 }
 
 export default App;
+
