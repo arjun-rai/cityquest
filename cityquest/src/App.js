@@ -1,5 +1,4 @@
 import './App.css';
-import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import {
   TextField,
@@ -33,6 +32,7 @@ const theme = createTheme({
 });
 
 function App() {
+  const [showLandingPage, setShowLandingPage] = useState(true);
   const [city, setCity] = useState('');
   const [submittedCity, setSubmittedCity] = useState('');
   const [distanceOption, setDistanceOption] = useState('');
@@ -48,6 +48,7 @@ function App() {
 
   const [data, setData] = useState('');
   const [randomImage, setRandomImage] = useState('');
+  const [landingImage, setLandingImage] = useState('');
 
 
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -57,13 +58,23 @@ function App() {
     'image1.jpg',
     'image2.jpg',
     'image3.jpg',
-    // Add more images as needed
   ];
 
   const getRandomImage = () => {
     const randomIndex = Math.floor(Math.random() * images.length);
     setRandomImage(images[randomIndex]);
   };
+
+  const getRandomLandingImage = () => {
+    const randomIndex = Math.floor(Math.random() * images.length);
+    setLandingImage(images[randomIndex]);
+  };
+
+  useEffect(() => {
+    if (showLandingPage) {
+      getRandomLandingImage();
+    }
+  }, [showLandingPage]);
 
   useEffect(() => {
     let interval;
@@ -220,6 +231,10 @@ function App() {
     setShowSnackbar(false);
   };
 
+  const handleLandingPageContinue = () => {
+    setShowLandingPage(false);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Container
@@ -227,7 +242,7 @@ function App() {
         maxWidth="sm"
         style={{
           backgroundColor: '#f5f5f5',
-          padding: '10px', /* adjusted padding */
+          padding: '10px',
           borderRadius: '8px',
           minHeight: '100vh',
           display: 'flex',
@@ -236,7 +251,6 @@ function App() {
           opacity: 0.7,
         }}
       >
-        {/* Header Section with Bar */}
         <AppBar
           position="fixed"
           style={{
@@ -252,154 +266,165 @@ function App() {
             <img 
               src={`${process.env.PUBLIC_URL}/CityQuest_Logo.png`} 
               alt="CityQuest Logo" 
-              style={{ height: '180px' }} // Adjust height as needed
+              style={{ height: '180px' }} 
             />
           </Toolbar>
         </AppBar>
 
-        <div style={{ marginTop: '100px' }}> {/* change this if you want to change the height of timer */}
-          {showTimer && (
-            <Typography variant="h5" align="center" style={{ display: 'none' }}>
-              {formatTime(timer)} {/* Hidden Timer */}
-            </Typography>
-          )}
-
-          {!submittedCity && locations.length === 0 ? (
-            <form onSubmit={handleSubmit}>
-              <Typography variant="h4" gutterBottom align="center">
-                What city are you in?
-              </Typography>
-              <TextField
-                label="Enter your city"
-                variant="outlined"
-                fullWidth
-                value={city}
-                onChange={handleInputChange}
-                margin="normal"
+        <div style={{ marginTop: '100px' }}>
+          {showLandingPage ? (
+            <div style={{ textAlign: 'center' }}>
+              <img 
+                src={`${process.env.PUBLIC_URL}/${landingImage}`} 
+                alt="Landing" 
+                style={{ width: '100%', height: 'auto', borderRadius: '10px', marginBottom: '20px' }} 
               />
-              <Button
-                type="submit"
-                variant="contained"
-                style={{ margin: '20px auto', display: 'block', backgroundColor: '#F7A8CE' }}
-              >
-                Let's roll
-              </Button>
-            </form>
-          ) : locations.length === 0 ? (
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
-              <Typography variant="h6">You are in: {submittedCity}</Typography>
-              <Typography variant="body1" style={{ marginTop: '10px' }}>
-                How would you like to explore the city?
+              <Typography variant="h3" gutterBottom>
+                Welcome to CityQuest!
               </Typography>
-
-              {/* Distance Selection Buttons */}
-              <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
-                {['walking', 'biking', 'driving'].map((option) => (
-                  <Button
-                    key={option}
-                    variant="outlined"
-                    onClick={() => handleDistanceSelect(option)}
-                    style={{
-                      margin: '10px',
-                      backgroundColor: distanceOption === option ? '#F7A8CE' : 'transparent',
-                      color: distanceOption === option ? 'white' : 'inherit',
-                    }}
-                  >
-                    {option.charAt(0).toUpperCase() + option.slice(1)}
-                  </Button>
-                ))}
-              </div>
-
-              <div style={{ marginTop: '20px' }}>
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel id="num-locations-label">Number of Locations</InputLabel>
-                  <Select
-                    labelId="num-locations-label"
-                    value={numLocations}
-                    onChange={handleNumLocationsChange}
-                    label="Number of Locations"
-                  >
-                    {[...Array(5).keys()].map((num) => (
-                      <MenuItem key={num + 1} value={num + 1}>
-                        {num + 1}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
-
-              {/* Submit Button to Fetch Locations */}
+              <Typography variant="h6" gutterBottom>
+                Get ready to explore your city like never before.
+              </Typography>
               <Button
                 variant="contained"
-                style={{ marginTop: '20px', backgroundColor: '#F7A8CE' }}
-                onClick={handleFetchLocations}
-                disabled={!numLocations || !distanceOption}
+                style={{ backgroundColor: '#F7A8CE' }}
+                onClick={handleLandingPageContinue}
               >
-                It's questin' time!
+                Continue
               </Button>
             </div>
           ) : (
-            <div style={{ marginTop: '20px', overflowY: 'auto', maxHeight: '70vh' }}>
-              <Grid container spacing={2}>
-                {locations.map((loc, index) => (
-                  !hiddenLocations.includes(index) && ( // Conditionally render based on hiddenLocations
-                    <Grid item xs={12} sm={6} md={4} key={loc.number}>
-                      <Card style={{ padding: '20px', marginBottom: '20px', textAlign: 'center' }}>
-                        <Typography variant="h6">{loc.name}</Typography>
-                        <Typography variant="body1">Location {loc.number}</Typography>
-                        <input
-                          id={`fileInput-${index}`}
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageChange(index)} // Pass the index here
-                          style={{ display: 'none' }}
-                        />
-                        <Button
-                          variant="outlined"
-                          style={{ marginTop: '10px', borderColor: '#F7A8CE', color: '#F7A8CE' }}
-                          onClick={() => document.getElementById(`fileInput-${index}`).click()}
-                        >
-                          Upload Picture
-                        </Button>
-                        {imageUrl[index] && (
-                          <img
-                            src={`data:image/jpeg;base64,${imageUrl[index]}`}
-                            alt="Selected"
-                            style={{
-                              marginTop: '10px',
-                              maxWidth: '100%',
-                              height: 'auto',
-                            }}
+            <>
+              {showTimer && (
+                <Typography variant="h5" align="center" style={{ display: 'none' }}>
+                  {formatTime(timer)}
+                </Typography>
+              )}
+              {!submittedCity && locations.length === 0 ? (
+                <form onSubmit={handleSubmit}>
+                  <Typography variant="h4" gutterBottom align="center">
+                    What city are you in?
+                  </Typography>
+                  <TextField
+                    label="Enter your city"
+                    variant="outlined"
+                    fullWidth
+                    value={city}
+                    onChange={handleInputChange}
+                    margin="normal"
+                  />
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    style={{ margin: '20px auto', display: 'block', backgroundColor: '#F7A8CE' }}
+                  >
+                    Let's roll
+                  </Button>
+                </form>
+              ) : locations.length === 0 ? (
+                <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                  <Typography variant="h6">You are in: {submittedCity}</Typography>
+                  <Typography variant="body1" style={{ marginTop: '10px' }}>
+                    How would you like to explore the city?
+                  </Typography>
+                  <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    {['walking', 'biking', 'driving'].map((option) => (
+                      <Button
+                        key={option}
+                        variant="outlined"
+                        onClick={() => handleDistanceSelect(option)}
+                        style={{
+                          margin: '10px',
+                          backgroundColor: distanceOption === option ? '#F7A8CE' : 'transparent',
+                          color: distanceOption === option ? 'white' : 'inherit',
+                        }}
+                      >
+                        {option.charAt(0).toUpperCase() + option.slice(1)}
+                      </Button>
+                    ))}
+                  </div>
+                  <FormControl fullWidth variant="outlined" style={{ marginTop: '20px' }}>
+                    <InputLabel id="num-locations-label">Number of Locations</InputLabel>
+                    <Select
+                      labelId="num-locations-label"
+                      value={numLocations}
+                      onChange={handleNumLocationsChange}
+                      label="Number of Locations"
+                    >
+                      {[...Array(5).keys()].map((num) => (
+                        <MenuItem key={num + 1} value={num + 1}>
+                          {num + 1}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <Button
+                    variant="contained"
+                    style={{ marginTop: '20px', backgroundColor: '#F7A8CE' }}
+                    onClick={handleFetchLocations}
+                    disabled={!numLocations || !distanceOption}
+                  >
+                    It's questin' time!
+                  </Button>
+                </div>
+              ) : (
+                <div style={{ marginTop: '20px', overflowY: 'auto', maxHeight: '70vh' }}>
+                  <Grid container spacing={2}>
+                    {locations.map((loc, index) => (
+                      <Grid item xs={12} sm={6} md={4} key={loc.number}>
+                        <Card style={{ padding: '20px', marginBottom: '20px', textAlign: 'center' }}>
+                          <Typography variant="h6">{loc.name}</Typography>
+                          <Typography variant="body1">Location {loc.number}</Typography>
+                          <input
+                            id={`fileInput-${index}`}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange(index)}
+                            style={{ display: 'none' }}
                           />
-                        )}
-                        <Button
-                          variant="contained"
-                          style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }} // Pastel pink button
-                          onClick={() => handleUploadImage(index)} // Pass the index here
-                        >
-                          Submit!
-                        </Button>
-                      </Card>
-                    </Grid>
-                  )
-                ))}
-              </Grid>
-              {/* Submit Button at the Bottom */}
-              <Button
-                variant="contained"
-                style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }}
-                onClick={handleDone}
-              >
-                I'm done!
-              </Button>
-            </div>
+                          <Button
+                            variant="outlined"
+                            style={{ marginTop: '10px', borderColor: '#F7A8CE', color: '#F7A8CE' }}
+                            onClick={() => document.getElementById(`fileInput-${index}`).click()}
+                          >
+                            Upload Picture
+                          </Button>
+                          {imageUrl[index] && (
+                            <img
+                              src={`data:image/jpeg;base64,${imageUrl[index]}`}
+                              alt="Selected"
+                              style={{
+                                marginTop: '10px',
+                                maxWidth: '100%',
+                                height: 'auto',
+                              }}
+                            />
+                          )}
+                          <Button
+                            variant="contained"
+                            style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }}
+                            onClick={() => handleUploadImage(index)}
+                          >
+                            Submit!
+                          </Button>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                  <Button
+                    variant="contained"
+                    style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }}
+                    onClick={handleDone}
+                  >
+                    I'm done!
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
 
-        {/* Confetti Effect */}
         {confettiVisible && <Confetti />}
-
-        {/* Snackbar for Image Uploads */}
         <Snackbar
           open={showSnackbar}
           autoHideDuration={10000}
@@ -408,14 +433,12 @@ function App() {
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           ContentProps={{
             style: {
-              backgroundColor: '#F7A8CE', // Pink color
-              color: 'white', // Optional: Change text color for better contrast
+              backgroundColor: '#F7A8CE',
+              color: 'white',
             },
           }}
         />
 
-
-        {/* Timer Display after "I'm done" */}
         {done && (
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
             <Typography variant="h5">Your time: {formatTime(timer)}</Typography>

@@ -26,3 +26,10 @@
   position: relative; /* Ensure child elements are above the overlay */
   z-index: 2; /* Bring child elements above the overlay */
 }
+
+/* Toggle Container */
+.toggle-container {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
