@@ -49,9 +49,7 @@ function App() {
   const [landingImage, setLandingImage] = useState('');
 
   const images = [
-    'image1.jpg',
-    'image2.jpg',
-    'image3.jpg',
+    'image2.png',
   ];
 
   const getRandomImage = () => {
