@@ -26,6 +26,11 @@ function App() {
     setNumLocations(event.target.value);
   };
 
+  const handleFetchLocations = () => {
+    // This is where you would fetch locations based on city, distance, and numLocations
+    console.log(`Fetching ${numLocations} locations in ${submittedCity} within ${distanceOption} distance.`);
+  };
+
   return (
     <Container className="App" maxWidth="sm">
       {!submittedCity ? (
@@ -48,7 +53,7 @@ function App() {
               color="primary"
               style={{ margin: '20px auto', display: 'block' }} // Center the button
             >
-              Submit
+              Let's roll
             </Button>
           </form>
         </>
@@ -92,6 +97,17 @@ function App() {
               </Select>
             </FormControl>
           </div>
+
+          {/* Blue Submit Button to Fetch Locations */}
+          <Button
+            variant="contained"
+            color="primary"
+            style={{ marginTop: '20px' }}
+            onClick={handleFetchLocations}
+            disabled={!numLocations || !distanceOption} // Disable if no number or distance option is selected
+          >
+            It's questin' time!
+          </Button>
         </div>
       )}
     </Container>
