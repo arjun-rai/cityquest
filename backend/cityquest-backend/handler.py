@@ -19,6 +19,8 @@ def handler(event, context):
         location: str = Field(description='place in city to visit')
         overview: str = Field(description='Overview of the location')
         facts: List[str] = Field(description='3 fun facts about the location')
+        lat: float = Field(description='latitude of location')
+        lng: float = Field(description='longitude of location')
 
     class locations(BaseModel):
         locations: List[place]=Field(description="locations to visit in the city")

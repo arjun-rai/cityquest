@@ -124,22 +124,24 @@ function App() {
 
   const handleUploadImage = async (index) => { // Accept index as a parameter
     // console.log(imageUrl[index]);
-    console.log(imageUrl[index])
+    console.log('https://bkeppsbsb0.execute-api.us-east-1.amazonaws.com/default/cityquest-image-checker-dev-handler?location=' + locations[index]['name'] + '&base64_image=' + imageUrl[index])
     setShowSnackbar(true);
 
     await axios.post(
-      'https://bkeppsbsb0.execute-api.us-east-1.amazonaws.com/default/cityquest-image-checker-dev-handler?location=' + locations[index]['name'] + '&base64_image=' + imageUrl[index],
+      'https://bkeppsbsb0.execute-api.us-east-1.amazonaws.com/default/cityquest-image-checker-dev-handler?location=' + encodeURIComponent(locations[index]['name']),
+      {
+        base64_image: imageUrl[index],
+      },
       {
         headers: {
           'Content-Type': 'application/json',
         },
       }
-    ).then(function (response)
-    {
+    ).then(function (response) {
       console.log(response);
       return response;
-
     });
+    
   };
 
   const handleImageChange = (index) => (event) => {
@@ -175,7 +177,7 @@ function App() {
           canvas.height = height;
           ctx.drawImage(img, 0, 0, width, height);
 
-          const base64String = canvas.toDataURL('image/jpeg', 0.2).split(',')[1]; // Compress to 70% quality
+          const base64String = canvas.toDataURL('image/jpeg', 0.1).split(',')[1]; // Compress to 70% quality
           setImageUrl((prevImageUrls) => {
             const newImageUrls = [...prevImageUrls];
             newImageUrls[index] = base64String; // Set the base64 string at the specified index
