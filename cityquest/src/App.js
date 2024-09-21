@@ -20,7 +20,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
 import Scrapbook from './Scrapbook';
 
-
 const theme = createTheme({
   typography: {
     fontFamily: 'Mali, cursive',
