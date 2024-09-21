@@ -18,6 +18,8 @@ import {
 import Confetti from 'react-confetti';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
+import Scrapbook from './Scrapbook';
+
 
 const theme = createTheme({
   typography: {
@@ -45,8 +47,20 @@ function App() {
   const [done, setDone] = useState(false);
   const [confettiVisible, setConfettiVisible] = useState(false);
   const [imageUrl, setImageUrl] = useState([]);
+
+
+  const [data, setData] = useState('');
   const [randomImage, setRandomImage] = useState('');
   const [landingImage, setLandingImage] = useState('');
+
+
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [hiddenLocations, setHiddenLocations] = useState([]);
+
+  const [snackbarQueue, setSnackbarQueue] = useState([]);
+  const [currentSnackbar, setCurrentSnackbar] = useState('');
+
+  const [originalImages, setOriginalImages] = useState([]);
 
   const images = [
     'image2.png',
@@ -61,6 +75,30 @@ function App() {
     const randomIndex = Math.floor(Math.random() * images.length);
     setLandingImage(images[randomIndex]);
   };
+
+  // New function to get user's location
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation({ lat: latitude, lng: longitude });
+      });
+    }
+  };
+
+  // Effect to get user's location when component mounts
+  useEffect(() => {
+    getUserLocation();
+  }, []);
+
+  // Update map markers whenever locations change
+  useEffect(() => {
+    const markers = locations.map((loc) => ({
+      name: loc.name,
+      position: { lat: loc.latitude, lng: loc.longitude } // Ensure latitude/longitude are available
+    }));
+    setMapMarkers(markers);
+  }, [locations]);
 
   useEffect(() => {
     if (showLandingPage) {
@@ -106,14 +144,21 @@ function App() {
   };
 
   const handleFetchLocations = async () => {
-    const response = await axios.get(
-      `https://wkq9bdzy81.execute-api.us-east-1.amazonaws.com/default/cityquest-backend-dev-handler?location=${submittedCity}&transportation=${distanceOption}&num_places=${numLocations}`
-    );
-    const fetchedLocations = Array.from({ length: numLocations }, (_, index) => ({
-      number: index + 1,
-      name: response.data.locations[index].location,
-    }));
-    setLocations(fetchedLocations);
+    await axios.get(
+      'https://wkq9bdzy81.execute-api.us-east-1.amazonaws.com/default/cityquest-backend-dev-handler?location=' + submittedCity + '&transportation=' + distanceOption + '&num_places=' + numLocations
+    ).then(function (response)
+    {
+      // console.log(response);
+      setData(response);
+      const fetchedLocations = Array.from({ length: numLocations }, (_, index) => ({
+        number: index + 1,
+        name: response['data']['locations'][index]['location'],
+      }));
+      setLocations(fetchedLocations);
+
+      return response;
+
+    });
     setShowTimer(true);
     setIsTimerRunning(true);
     setSubmittedCity('');
@@ -125,9 +170,31 @@ function App() {
     setShowSnackbar(true);
     await axios.post(
       'https://bkeppsbsb0.execute-api.us-east-1.amazonaws.com/default/cityquest-image-checker-dev-handler?location=' + encodeURIComponent(locations[index]['name']),
-      { base64_image: imageUrl[index] },
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+      {
+        base64_image: imageUrl[index],
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    ).then(function (response) {
+      if (response['data']['is_location'] === true) {
+        setSnackbarQueue([
+          `Overview: ${data['data']['locations'][index]['overview']}`,
+          `Fun Facts: ${data['data']['locations'][index]['facts']}`
+        ]);
+        setCurrentSnackbar(`Overview: ${data['data']['locations'][index]['overview']}`);
+        setShowSnackbar(true);
+
+        // Hide the tile corresponding to this index
+        setHiddenLocations((prevHiddenLocations) => [...prevHiddenLocations, index]);
+      } else {
+        setSnackbarMessage('Invalid image');
+        setCurrentSnackbar('Invalid image'); // Ensure the current snackbar message is set
+        setShowSnackbar(true);
+      }
+    });
   };
 
   const handleImageChange = (index) => (event) => {
@@ -140,6 +207,8 @@ function App() {
         img.onload = () => {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
+          
+          // Set the desired width and height for the compressed image
           const maxWidth = 400;
           const maxHeight = 400;
           let width = img.width;
@@ -160,11 +229,19 @@ function App() {
           canvas.width = width;
           canvas.height = height;
           ctx.drawImage(img, 0, 0, width, height);
-          const base64String = canvas.toDataURL('image/jpeg', 0.1).split(',')[1];
+
+          const base64String = canvas.toDataURL('image/jpeg', 0.1).split(',')[1]; // Compress to 70% quality
           setImageUrl((prevImageUrls) => {
             const newImageUrls = [...prevImageUrls];
             newImageUrls[index] = base64String;
             return newImageUrls;
+          });
+
+          // Store the original image for preview
+          setOriginalImages((prevOriginalImages) => {
+            const newOriginalImages = [...prevOriginalImages];
+            newOriginalImages[index] = reader.result; // Set the original image at the specified index
+            return newOriginalImages;
           });
         };
       };
@@ -191,6 +268,12 @@ function App() {
 
   const handleLandingPageContinue = () => {
     setShowLandingPage(false);
+  };
+
+  // Before the return statement, define the map container styles
+  const containerStyle = {
+    width: '100%',
+    height: '400px'
   };
 
   return (
@@ -402,6 +485,24 @@ function App() {
             <Typography variant="h5">Your time: {formatTime(timer)}</Typography>
           </div>
         )}
+
+        {/* Google Maps section */}
+        <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+          {userLocation && (
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              center={userLocation}
+              zoom={10}
+            >
+              {/* Mark the user's location */}
+              <Marker position={userLocation} />
+              {/* Mark locations fetched */}
+              {mapMarkers.map((marker, index) => (
+                <Marker key={index} position={marker.position} />
+              ))}
+            </GoogleMap>
+          )}
+        </LoadScript>
       </Container>
     </ThemeProvider>
   );
