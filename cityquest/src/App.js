@@ -43,6 +43,7 @@ function App() {
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [done, setDone] = useState(false);
   const [confettiVisible, setConfettiVisible] = useState(false);
+  const [imageUrl, setImageUrl] = useState([]);
 
   const [data, setData] = useState('');
 
@@ -106,9 +107,74 @@ function App() {
     setNumLocations('');
   };
 
-  const handleUploadImage = () => {
 
+  const handleUploadImage = async (index) => { // Accept index as a parameter
+    // console.log(imageUrl[index]);
+    console.log(imageUrl[index])
     setShowSnackbar(true);
+
+    await axios.post(
+      'https://bkeppsbsb0.execute-api.us-east-1.amazonaws.com/default/cityquest-image-checker-dev-handler?location=' + locations[index]['name'] + '&base64_image=' + imageUrl[index],
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    ).then(function (response)
+    {
+      console.log(response);
+      return response;
+
+    });
+  };
+
+  const handleImageChange = (index) => (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const img = new Image();
+        img.src = reader.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Set the desired width and height for the compressed image
+          const maxWidth = 400;
+          const maxHeight = 400;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxWidth) {
+              height *= maxWidth / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width *= maxHeight / height;
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const base64String = canvas.toDataURL('image/jpeg', 0.2).split(',')[1]; // Compress to 70% quality
+          setImageUrl((prevImageUrls) => {
+            const newImageUrls = [...prevImageUrls];
+            newImageUrls[index] = base64String; // Set the base64 string at the specified index
+            return newImageUrls;
+          });
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    document.getElementById('fileInput').click();
   };
 
   const handleDone = () => {
@@ -249,17 +315,42 @@ function App() {
           ) : (
             <div style={{ marginTop: '20px', overflowY: 'auto', maxHeight: '70vh' }}>
               <Grid container spacing={2}>
-                {locations.map((loc) => (
+                {locations.map((loc, index) => (
                   <Grid item xs={12} sm={6} md={4} key={loc.number}>
                     <Card style={{ padding: '20px', marginBottom: '20px', textAlign: 'center' }}>
                       <Typography variant="h6">{loc.name}</Typography>
                       <Typography variant="body1">Location {loc.number}</Typography>
+                      <input
+                        id={`fileInput-${index}`}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange(index)} // Pass the index here
+                        style={{ display: 'none' }}
+                      />
                       <Button
                         variant="outlined"
-                        style={{ marginTop: '10px', borderColor: '#F7A8CE', color: '#F7A8CE' }} // Pastel pink button
-                        onClick={handleUploadImage} // Upload button triggers the snackbar
+                        style={{ marginTop: '10px', borderColor: '#F7A8CE', color: '#F7A8CE' }}
+                        onClick={() => document.getElementById(`fileInput-${index}`).click()}
                       >
                         Upload Picture
+                      </Button>
+                      {imageUrl[index] && (
+                        <img
+                          src={`data:image/jpeg;base64,${imageUrl[index]}`}
+                          alt="Selected"
+                          style={{
+                            marginTop: '10px',
+                            maxWidth: '100%',
+                            height: 'auto',
+                          }}
+                        />
+                      )}
+                      <Button
+                        variant="contained"
+                        style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }} // Pastel pink button
+                        onClick={() => handleUploadImage(index)} // Pass the index here
+                      >
+                        Submit!
                       </Button>
                     </Card>
                   </Grid>
