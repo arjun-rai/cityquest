@@ -1,6 +1,33 @@
 import './App.css';
-import { useState } from 'react';
-import { TextField, Button, Typography, Container, Select, MenuItem, InputLabel, FormControl, Grid, Card } from '@mui/material';
+import { useState, useEffect } from 'react';
+import {
+  TextField,
+  Button,
+  Typography,
+  Container,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Grid,
+  Card,
+  AppBar,
+  Toolbar,
+  Snackbar,
+} from '@mui/material';
+import Confetti from 'react-confetti';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const theme = createTheme({
+  typography: {
+    fontFamily: 'Mali, cursive', // Apply Mali font
+  },
+  palette: {
+    primary: {
+      main: '#F7A8CE', // Main color for buttons
+    },
+  },
+});
 
 function App() {
   const [city, setCity] = useState('');
@@ -8,6 +35,31 @@ function App() {
   const [distanceOption, setDistanceOption] = useState('');
   const [numLocations, setNumLocations] = useState('');
   const [locations, setLocations] = useState([]);
+  const [timer, setTimer] = useState(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [showTimer, setShowTimer] = useState(false);
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [done, setDone] = useState(false);
+  const [confettiVisible, setConfettiVisible] = useState(false);
+
+  useEffect(() => {
+    let interval;
+    if (isTimerRunning) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning]);
+
+  useEffect(() => {
+    if (confettiVisible) {
+      const timer = setTimeout(() => {
+        setConfettiVisible(false);
+      }, 5000); // Confetti lasts for 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [confettiVisible]);
 
   const handleInputChange = (event) => {
     setCity(event.target.value);
@@ -16,7 +68,7 @@ function App() {
   const handleSubmit = (event) => {
     event.preventDefault();
     setSubmittedCity(city);
-    setCity(''); // Clear the input field after submission
+    setCity('');
   };
 
   const handleDistanceSelect = (option) => {
@@ -33,111 +85,201 @@ function App() {
       name: `Location ${index + 1}`,
     }));
     setLocations(fetchedLocations);
-    // Clear all states
+    setShowTimer(true);
+    setIsTimerRunning(true);
     setSubmittedCity('');
     setDistanceOption('');
     setNumLocations('');
   };
 
+  const handleUploadImage = () => {
+    setShowSnackbar(true);
+  };
+
+  const handleDone = () => {
+    setDone(true);
+    setIsTimerRunning(false);
+    setConfettiVisible(true); // Show confetti
+  };
+
+  const formatTime = (seconds) => {
+    const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+    const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+    const secs = String(seconds % 60).padStart(2, '0');
+    return `${hrs}:${mins}:${secs}`;
+  };
+
+  const handleSnackbarClose = () => {
+    setShowSnackbar(false);
+  };
+
   return (
-    <Container className="App" maxWidth="sm" style={{ backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '8px', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-      {!submittedCity && locations.length === 0 ? (
-        <form onSubmit={handleSubmit}>
-          <Typography variant="h4" gutterBottom align="center">
-            What city are you in?
-          </Typography>
-          <TextField 
-            label="Enter your city" 
-            variant="outlined" 
-            fullWidth 
-            value={city} 
-            onChange={handleInputChange} 
-            margin="normal"
-          />
-          <Button 
-            type="submit" 
-            variant="contained" 
-            color="primary"
-            style={{ margin: '20px auto', display: 'block' }} // Center the button
-          >
-            Let's roll
-          </Button>
-        </form>
-      ) : locations.length === 0 ? (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <Typography variant="h6">
-            You are in: {submittedCity}
-          </Typography>
-          <Typography variant="body1" style={{ marginTop: '10px' }}>
-            How would you like to explore the city?
-          </Typography>
-          
-          {/* Distance Selection Buttons */}
-          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
-            {['walking', 'biking', 'driving'].map((option) => (
-              <Button 
-                key={option}
+    <ThemeProvider theme={theme}>
+      <Container
+        className="App"
+        maxWidth="sm"
+        style={{
+          backgroundColor: '#f5f5f5',
+          padding: '20px',
+          borderRadius: '8px',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+        }}
+      >
+        {/* Header Section with Bar */}
+        <AppBar
+          position="fixed"
+          style={{
+            backgroundColor: '#F7A8CE',
+            boxShadow: 'none',
+            top: 0,
+            left: 0,
+            right: 0,
+            transition: 'height 0.3s',
+          }}
+        >
+          <Toolbar style={{ height: '80px', justifyContent: 'center' }}>
+            <Typography variant="h5" style={{ fontWeight: 'bold', color: '#fff' }}>
+              CityQuest
+            </Typography>
+          </Toolbar>
+          <div style={{ height: '5px', backgroundColor: '#ffffff', transition: 'height 0.3s' }} />
+        </AppBar>
+
+        <div style={{ marginTop: '100px' }}>
+          {showTimer && (
+            <Typography variant="h5" align="center" style={{ display: 'none' }}>
+              {formatTime(timer)} {/* Hidden Timer */}
+            </Typography>
+          )}
+
+          {!submittedCity && locations.length === 0 ? (
+            <form onSubmit={handleSubmit}>
+              <Typography variant="h4" gutterBottom align="center">
+                What city are you in?
+              </Typography>
+              <TextField
+                label="Enter your city"
                 variant="outlined"
-                onClick={() => handleDistanceSelect(option)}
-                style={{
-                  margin: '10px',
-                  backgroundColor: distanceOption === option ? '#1976d2' : 'transparent', // Blue background if selected
-                  color: distanceOption === option ? 'white' : 'inherit', // White text if selected
-                }}
+                fullWidth
+                value={city}
+                onChange={handleInputChange}
+                margin="normal"
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                style={{ margin: '20px auto', display: 'block', backgroundColor: '#F7A8CE' }} // Pastel pink button
               >
-                {option.charAt(0).toUpperCase() + option.slice(1)}
+                Let's roll
               </Button>
-            ))}
-          </div>
+            </form>
+          ) : locations.length === 0 ? (
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <Typography variant="h6">You are in: {submittedCity}</Typography>
+              <Typography variant="body1" style={{ marginTop: '10px' }}>
+                How would you like to explore the city?
+              </Typography>
 
-          <div style={{ marginTop: '20px' }}>
-            <FormControl fullWidth variant="outlined">
-              <InputLabel id="num-locations-label">Number of Locations</InputLabel>
-              <Select
-                labelId="num-locations-label"
-                value={numLocations}
-                onChange={handleNumLocationsChange}
-                label="Number of Locations"
-              >
-                {[...Array(10).keys()].map((num) => (
-                  <MenuItem key={num + 1} value={num + 1}>{num + 1}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
-
-          {/* Blue Submit Button to Fetch Locations */}
-          <Button
-            variant="contained"
-            color="primary"
-            style={{ marginTop: '20px' }}
-            onClick={handleFetchLocations}
-            disabled={!numLocations || !distanceOption} // Disable if no number or distance option is selected
-          >
-            It's questin' time!
-          </Button>
-        </div>
-      ) : (
-        <div style={{ marginTop: '20px', overflowY: 'auto', maxHeight: '70vh' }}>
-          <Typography variant="h5" gutterBottom align="center">
-            Locations:
-          </Typography>
-          <Grid container spacing={2}>
-            {locations.map((loc) => (
-              <Grid item xs={12} sm={6} md={4} key={loc.number}>
-                <Card style={{ padding: '20px', marginBottom: '20px', textAlign: 'center' }}>
-                  <Typography variant="h6">Location {loc.number}</Typography>
-                  <Typography variant="body1">{loc.name}</Typography>
-                  <Button variant="outlined" style={{ marginTop: '10px' }}>
-                    Upload Picture
+              {/* Distance Selection Buttons */}
+              <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
+                {['walking', 'biking', 'driving'].map((option) => (
+                  <Button
+                    key={option}
+                    variant="outlined"
+                    onClick={() => handleDistanceSelect(option)}
+                    style={{
+                      margin: '10px',
+                      backgroundColor: distanceOption === option ? '#F7A8CE' : 'transparent',
+                      color: distanceOption === option ? 'white' : 'inherit',
+                    }}
+                  >
+                    {option.charAt(0).toUpperCase() + option.slice(1)}
                   </Button>
-                </Card>
+                ))}
+              </div>
+
+              <div style={{ marginTop: '20px' }}>
+                <FormControl fullWidth variant="outlined">
+                  <InputLabel id="num-locations-label">Number of Locations</InputLabel>
+                  <Select
+                    labelId="num-locations-label"
+                    value={numLocations}
+                    onChange={handleNumLocationsChange}
+                    label="Number of Locations"
+                  >
+                    {[...Array(10).keys()].map((num) => (
+                      <MenuItem key={num + 1} value={num + 1}>
+                        {num + 1}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+
+              {/* Submit Button to Fetch Locations */}
+              <Button
+                variant="contained"
+                style={{ marginTop: '20px', backgroundColor: '#F7A8CE' }} // Pastel pink button
+                onClick={handleFetchLocations}
+                disabled={!numLocations || !distanceOption}
+              >
+                It's questin' time!
+              </Button>
+            </div>
+          ) : (
+            <div style={{ marginTop: '20px', overflowY: 'auto', maxHeight: '70vh' }}>
+              <Grid container spacing={2}>
+                {locations.map((loc) => (
+                  <Grid item xs={12} sm={6} md={4} key={loc.number}>
+                    <Card style={{ padding: '20px', marginBottom: '20px', textAlign: 'center' }}>
+                      <Typography variant="h6">Location {loc.number}</Typography>
+                      <Typography variant="body1">{loc.name}</Typography>
+                      <Button
+                        variant="outlined"
+                        style={{ marginTop: '10px', borderColor: '#F7A8CE', color: '#F7A8CE' }} // Pastel pink button
+                        onClick={handleUploadImage} // Upload button triggers the snackbar
+                      >
+                        Upload Picture
+                      </Button>
+                    </Card>
+                  </Grid>
+                ))}
               </Grid>
-            ))}
-          </Grid>
+              {/* Submit Button at the Bottom */}
+              <Button
+                variant="contained"
+                style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }} // Pastel pink button
+                onClick={handleDone}
+              >
+                I'm done!
+              </Button>
+            </div>
+          )}
         </div>
-      )}
-    </Container>
+
+        {/* Confetti Effect */}
+        {confettiVisible && <Confetti />}
+
+        {/* Snackbar for Image Uploads */}
+        <Snackbar
+          open={showSnackbar}
+          autoHideDuration={3000}
+          onClose={handleSnackbarClose}
+          message="Image uploaded!"
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        />
+
+        {/* Timer Display after "I'm done" */}
+        {done && (
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <Typography variant="h5">Your time: {formatTime(timer)}</Typography>
+          </div>
+        )}
+      </Container>
+    </ThemeProvider>
   );
 }
 
