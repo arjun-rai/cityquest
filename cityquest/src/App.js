@@ -46,6 +46,8 @@ function App() {
   const [confettiVisible, setConfettiVisible] = useState(false);
   const [imageUrl, setImageUrl] = useState([]);
 
+  const [showImage, setShowImage] = useState([])
+
   const [data, setData] = useState('');
   const [randomImage, setRandomImage] = useState('');
   const [landingImage, setLandingImage] = useState('');
