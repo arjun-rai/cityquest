@@ -49,6 +49,10 @@ function App() {
   const [data, setData] = useState('');
   const [randomImage, setRandomImage] = useState('');
 
+
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [hiddenLocations, setHiddenLocations] = useState([]);
+
   const images = [
     'image1.jpg',
     'image2.jpg',
@@ -122,10 +126,9 @@ function App() {
   };
 
 
-  const handleUploadImage = async (index) => { // Accept index as a parameter
+  const handleUploadImage = async (index) => {
     // console.log(imageUrl[index]);
-    console.log('https://bkeppsbsb0.execute-api.us-east-1.amazonaws.com/default/cityquest-image-checker-dev-handler?location=' + locations[index]['name'] + '&base64_image=' + imageUrl[index])
-    setShowSnackbar(true);
+    // console.log('https://bkeppsbsb0.execute-api.us-east-1.amazonaws.com/default/cityquest-image-checker-dev-handler?location=' + locations[index]['name'] + '&base64_image=' + imageUrl[index])
 
     await axios.post(
       'https://bkeppsbsb0.execute-api.us-east-1.amazonaws.com/default/cityquest-image-checker-dev-handler?location=' + encodeURIComponent(locations[index]['name']),
@@ -138,7 +141,14 @@ function App() {
         },
       }
     ).then(function (response) {
-      console.log(response);
+      // console.log(response);
+      if (response['data']['is_location'] === true) {
+        setSnackbarMessage(`Overview: ${data['data']['locations'][index]['overview']}\nFacts: ${data['data']['locations'][index]['facts']}`);
+        setHiddenLocations((prevHidden) => [...prevHidden, index]); // Mark the location as hidden
+      } else {
+        setSnackbarMessage('Invalid image');
+      }
+      setShowSnackbar(true); // Move this inside the then block
       return response;
     });
     
@@ -332,44 +342,46 @@ function App() {
             <div style={{ marginTop: '20px', overflowY: 'auto', maxHeight: '70vh' }}>
               <Grid container spacing={2}>
                 {locations.map((loc, index) => (
-                  <Grid item xs={12} sm={6} md={4} key={loc.number}>
-                    <Card style={{ padding: '20px', marginBottom: '20px', textAlign: 'center' }}>
-                      <Typography variant="h6">{loc.name}</Typography>
-                      <Typography variant="body1">Location {loc.number}</Typography>
-                      <input
-                        id={`fileInput-${index}`}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange(index)} // Pass the index here
-                        style={{ display: 'none' }}
-                      />
-                      <Button
-                        variant="outlined"
-                        style={{ marginTop: '10px', borderColor: '#F7A8CE', color: '#F7A8CE' }}
-                        onClick={() => document.getElementById(`fileInput-${index}`).click()}
-                      >
-                        Upload Picture
-                      </Button>
-                      {imageUrl[index] && (
-                        <img
-                          src={`data:image/jpeg;base64,${imageUrl[index]}`}
-                          alt="Selected"
-                          style={{
-                            marginTop: '10px',
-                            maxWidth: '100%',
-                            height: 'auto',
-                          }}
+                  !hiddenLocations.includes(index) && ( // Conditionally render based on hiddenLocations
+                    <Grid item xs={12} sm={6} md={4} key={loc.number}>
+                      <Card style={{ padding: '20px', marginBottom: '20px', textAlign: 'center' }}>
+                        <Typography variant="h6">{loc.name}</Typography>
+                        <Typography variant="body1">Location {loc.number}</Typography>
+                        <input
+                          id={`fileInput-${index}`}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange(index)} // Pass the index here
+                          style={{ display: 'none' }}
                         />
-                      )}
-                      <Button
-                        variant="contained"
-                        style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }} // Pastel pink button
-                        onClick={() => handleUploadImage(index)} // Pass the index here
-                      >
-                        Submit!
-                      </Button>
-                    </Card>
-                  </Grid>
+                        <Button
+                          variant="outlined"
+                          style={{ marginTop: '10px', borderColor: '#F7A8CE', color: '#F7A8CE' }}
+                          onClick={() => document.getElementById(`fileInput-${index}`).click()}
+                        >
+                          Upload Picture
+                        </Button>
+                        {imageUrl[index] && (
+                          <img
+                            src={`data:image/jpeg;base64,${imageUrl[index]}`}
+                            alt="Selected"
+                            style={{
+                              marginTop: '10px',
+                              maxWidth: '100%',
+                              height: 'auto',
+                            }}
+                          />
+                        )}
+                        <Button
+                          variant="contained"
+                          style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }} // Pastel pink button
+                          onClick={() => handleUploadImage(index)} // Pass the index here
+                        >
+                          Submit!
+                        </Button>
+                      </Card>
+                    </Grid>
+                  )
                 ))}
               </Grid>
               {/* Submit Button at the Bottom */}
@@ -390,9 +402,9 @@ function App() {
         {/* Snackbar for Image Uploads */}
         <Snackbar
           open={showSnackbar}
-          autoHideDuration={3000}
+          autoHideDuration={10000}
           onClose={handleSnackbarClose}
-          message="Image uploaded!"
+          message={snackbarMessage}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           ContentProps={{
             style: {
