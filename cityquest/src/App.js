@@ -54,6 +54,9 @@ function App() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [hiddenLocations, setHiddenLocations] = useState([]);
 
+  const [snackbarQueue, setSnackbarQueue] = useState([]);
+  const [currentSnackbar, setCurrentSnackbar] = useState('');
+
   const images = [
     'image1.jpg',
     'image2.jpg',
@@ -154,12 +157,19 @@ function App() {
     ).then(function (response) {
       // console.log(response);
       if (response['data']['is_location'] === true) {
-        setSnackbarMessage(`Overview: ${data['data']['locations'][index]['overview']}\nFacts: ${data['data']['locations'][index]['facts']}`);
-        setHiddenLocations((prevHidden) => [...prevHidden, index]); // Mark the location as hidden
+        setSnackbarQueue([
+          `Overview: ${data['data']['locations'][index]['overview']}`,
+          `Fun Facts: ${data['data']['locations'][index]['facts']}`
+        ]);
+        setCurrentSnackbar(`Overview: ${data['data']['locations'][index]['overview']}`);
+        setShowSnackbar(true);
+
+        // Hide the tile corresponding to this index
+        setHiddenLocations((prevHiddenLocations) => [...prevHiddenLocations, index]);
       } else {
         setSnackbarMessage('Invalid image');
+        setShowSnackbar(true);
       }
-      setShowSnackbar(true); // Move this inside the then block
       return response;
     });
     
@@ -229,6 +239,11 @@ function App() {
 
   const handleSnackbarClose = () => {
     setShowSnackbar(false);
+    if (snackbarQueue.length > 0) {
+      const nextMessage = snackbarQueue.shift();
+      setCurrentSnackbar(nextMessage);
+      setShowSnackbar(true);
+    }
   };
 
   const handleLandingPageContinue = () => {
@@ -371,44 +386,46 @@ function App() {
                 <div style={{ marginTop: '20px', overflowY: 'auto', maxHeight: '70vh' }}>
                   <Grid container spacing={2}>
                     {locations.map((loc, index) => (
-                      <Grid item xs={12} sm={6} md={4} key={loc.number}>
-                        <Card style={{ padding: '20px', marginBottom: '20px', textAlign: 'center' }}>
-                          <Typography variant="h6">{loc.name}</Typography>
-                          <Typography variant="body1">Location {loc.number}</Typography>
-                          <input
-                            id={`fileInput-${index}`}
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange(index)}
-                            style={{ display: 'none' }}
-                          />
-                          <Button
-                            variant="outlined"
-                            style={{ marginTop: '10px', borderColor: '#F7A8CE', color: '#F7A8CE' }}
-                            onClick={() => document.getElementById(`fileInput-${index}`).click()}
-                          >
-                            Upload Picture
-                          </Button>
-                          {imageUrl[index] && (
-                            <img
-                              src={`data:image/jpeg;base64,${imageUrl[index]}`}
-                              alt="Selected"
-                              style={{
-                                marginTop: '10px',
-                                maxWidth: '100%',
-                                height: 'auto',
-                              }}
+                      !hiddenLocations.includes(index) && (
+                        <Grid item xs={12} sm={6} md={4} key={loc.number}>
+                          <Card style={{ padding: '20px', marginBottom: '20px', textAlign: 'center' }}>
+                            <Typography variant="h6">{loc.name}</Typography>
+                            <Typography variant="body1">Location {loc.number}</Typography>
+                            <input
+                              id={`fileInput-${index}`}
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageChange(index)}
+                              style={{ display: 'none' }}
                             />
-                          )}
-                          <Button
-                            variant="contained"
-                            style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }}
-                            onClick={() => handleUploadImage(index)}
-                          >
-                            Submit!
-                          </Button>
-                        </Card>
-                      </Grid>
+                            <Button
+                              variant="outlined"
+                              style={{ marginTop: '10px', borderColor: '#F7A8CE', color: '#F7A8CE' }}
+                              onClick={() => document.getElementById(`fileInput-${index}`).click()}
+                            >
+                              Upload Picture
+                            </Button>
+                            {imageUrl[index] && (
+                              <img
+                                src={`data:image/jpeg;base64,${imageUrl[index]}`}
+                                alt="Selected"
+                                style={{
+                                  marginTop: '10px',
+                                  maxWidth: '100%',
+                                  height: 'auto',
+                                }}
+                              />
+                            )}
+                            <Button
+                              variant="contained"
+                              style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }}
+                              onClick={() => handleUploadImage(index)}
+                            >
+                              Submit!
+                            </Button>
+                          </Card>
+                        </Grid>
+                      )
                     ))}
                   </Grid>
                   <Button
@@ -429,14 +446,16 @@ function App() {
           open={showSnackbar}
           autoHideDuration={10000}
           onClose={handleSnackbarClose}
-          message={snackbarMessage}
+          message={currentSnackbar}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           ContentProps={{
             style: {
               backgroundColor: '#F7A8CE',
               color: 'white',
+              whitespace: 'pre-line'
             },
           }}
+          onClick={handleSnackbarClose}
         />
 
         {done && (
