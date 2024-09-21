@@ -20,12 +20,12 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const theme = createTheme({
   typography: {
-    fontFamily: 'Mali, cursive', // Apply Mali font
-    fontWeightBold: 700, // Set bold weight
+    fontFamily: 'Mali, cursive',
+    fontWeightBold: 700,
   },
   palette: {
     primary: {
-      main: '#F7A8CE', // Main color for buttons
+      main: '#F7A8CE',
     },
   },
 });
@@ -42,6 +42,19 @@ function App() {
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [done, setDone] = useState(false);
   const [confettiVisible, setConfettiVisible] = useState(false);
+  const [randomImage, setRandomImage] = useState('');
+
+  const images = [
+    'image1.jpg',
+    'image2.jpg',
+    'image3.jpg',
+    // Add more images as needed
+  ];
+
+  const getRandomImage = () => {
+    const randomIndex = Math.floor(Math.random() * images.length);
+    setRandomImage(images[randomIndex]);
+  };
 
   useEffect(() => {
     let interval;
@@ -57,7 +70,7 @@ function App() {
     if (confettiVisible) {
       const timer = setTimeout(() => {
         setConfettiVisible(false);
-      }, 5000); // Confetti lasts for 5 seconds
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [confettiVisible]);
@@ -94,13 +107,14 @@ function App() {
   };
 
   const handleUploadImage = () => {
+    getRandomImage();
     setShowSnackbar(true);
   };
 
   const handleDone = () => {
     setDone(true);
     setIsTimerRunning(false);
-    setConfettiVisible(true); // Show confetti
+    setConfettiVisible(true);
   };
 
   const formatTime = (seconds) => {
@@ -127,8 +141,7 @@ function App() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-
-          opacity: 0.7, // THIS IS THE OPACITY, YOU CAN CHANGE IT IF YOU WANT, LOOK FOR THIS LINE
+          opacity: 0.7,
         }}
       >
         {/* Header Section with Bar */}
@@ -143,12 +156,13 @@ function App() {
             transition: 'height 0.3s',
           }}
         >
-          <Toolbar style={{ height: '80px', justifyContent: 'center' }}>
-            <Typography variant="h5" style={{ fontWeight: 'bold', color: '#fff' }}>
-              CityQuest
-            </Typography>
+          <Toolbar style={{ height: '70px', justifyContent: 'center' }}>
+            <img 
+              src={`${process.env.PUBLIC_URL}/CityQuest_Logo.png`} 
+              alt="CityQuest Logo" 
+              style={{ height: '180px' }} // Adjust height as needed
+            />
           </Toolbar>
-          <div style={{ height: '5px', backgroundColor: '#ffffff', transition: 'height 0.3s' }} />
         </AppBar>
 
         <div style={{ marginTop: '100px' }}>
@@ -174,7 +188,7 @@ function App() {
               <Button
                 type="submit"
                 variant="contained"
-                style={{ margin: '20px auto', display: 'block', backgroundColor: '#F7A8CE' }} // Pastel pink button
+                style={{ margin: '20px auto', display: 'block', backgroundColor: '#F7A8CE' }}
               >
                 Let's roll
               </Button>
@@ -213,7 +227,7 @@ function App() {
                     onChange={handleNumLocationsChange}
                     label="Number of Locations"
                   >
-                    {[...Array(10).keys()].map((num) => (
+                    {[...Array(5).keys()].map((num) => (
                       <MenuItem key={num + 1} value={num + 1}>
                         {num + 1}
                       </MenuItem>
@@ -225,7 +239,7 @@ function App() {
               {/* Submit Button to Fetch Locations */}
               <Button
                 variant="contained"
-                style={{ marginTop: '20px', backgroundColor: '#F7A8CE' }} // Pastel pink button
+                style={{ marginTop: '20px', backgroundColor: '#F7A8CE' }}
                 onClick={handleFetchLocations}
                 disabled={!numLocations || !distanceOption}
               >
@@ -240,10 +254,15 @@ function App() {
                     <Card style={{ padding: '20px', marginBottom: '20px', textAlign: 'center' }}>
                       <Typography variant="h6">Location {loc.number}</Typography>
                       <Typography variant="body1">{loc.name}</Typography>
+                      
+                      {randomImage && (
+                        <img src={randomImage} alt="Random Location" style={{ width: '100%', height: 'auto', marginTop: '10px' }} />
+                      )}
+
                       <Button
                         variant="outlined"
-                        style={{ marginTop: '10px', borderColor: '#F7A8CE', color: '#F7A8CE' }} // Pastel pink button
-                        onClick={handleUploadImage} // Upload button triggers the snackbar
+                        style={{ marginTop: '10px', borderColor: '#F7A8CE', color: '#F7A8CE' }}
+                        onClick={handleUploadImage}
                       >
                         Upload Picture
                       </Button>
@@ -254,7 +273,7 @@ function App() {
               {/* Submit Button at the Bottom */}
               <Button
                 variant="contained"
-                style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }} // Pastel pink button
+                style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }}
                 onClick={handleDone}
               >
                 I'm done!
@@ -287,4 +306,3 @@ function App() {
 }
 
 export default App;
-
