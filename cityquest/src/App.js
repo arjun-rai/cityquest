@@ -1,4 +1,5 @@
 import './App.css';
+import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import {
   TextField,
@@ -21,12 +22,12 @@ import axios from 'axios';
 
 const theme = createTheme({
   typography: {
-    fontFamily: 'Mali, cursive', // Apply Mali font
-    fontWeightBold: 700, // Set bold weight
+    fontFamily: 'Mali, cursive',
+    fontWeightBold: 700,
   },
   palette: {
     primary: {
-      main: '#F7A8CE', // Main color for buttons
+      main: '#F7A8CE',
     },
   },
 });
@@ -46,6 +47,19 @@ function App() {
   const [imageUrl, setImageUrl] = useState([]);
 
   const [data, setData] = useState('');
+  const [randomImage, setRandomImage] = useState('');
+
+  const images = [
+    'image1.jpg',
+    'image2.jpg',
+    'image3.jpg',
+    // Add more images as needed
+  ];
+
+  const getRandomImage = () => {
+    const randomIndex = Math.floor(Math.random() * images.length);
+    setRandomImage(images[randomIndex]);
+  };
 
   useEffect(() => {
     let interval;
@@ -61,7 +75,7 @@ function App() {
     if (confettiVisible) {
       const timer = setTimeout(() => {
         setConfettiVisible(false);
-      }, 5000); // Confetti lasts for 5 seconds
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [confettiVisible]);
@@ -180,7 +194,7 @@ function App() {
   const handleDone = () => {
     setDone(true);
     setIsTimerRunning(false);
-    setConfettiVisible(true); // Show confetti
+    setConfettiVisible(true);
   };
 
   const formatTime = (seconds) => {
@@ -201,14 +215,13 @@ function App() {
         maxWidth="sm"
         style={{
           backgroundColor: '#f5f5f5',
-          padding: '20px',
+          padding: '10px', /* adjusted padding */
           borderRadius: '8px',
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-
-          opacity: 0.5, // THIS IS THE OPACITY, YOU CAN CHANGE IT IF YOU WANT, LOOK FOR THIS LINE
+          opacity: 0.7,
         }}
       >
         {/* Header Section with Bar */}
@@ -223,15 +236,16 @@ function App() {
             transition: 'height 0.3s',
           }}
         >
-          <Toolbar style={{ height: '80px', justifyContent: 'center' }}>
-            <Typography variant="h5" style={{ fontWeight: 'bold', color: '#fff' }}>
-              CityQuest
-            </Typography>
+          <Toolbar style={{ height: '70px', justifyContent: 'center' }}>
+            <img 
+              src={`${process.env.PUBLIC_URL}/CityQuest_Logo.png`} 
+              alt="CityQuest Logo" 
+              style={{ height: '180px' }} // Adjust height as needed
+            />
           </Toolbar>
-          <div style={{ height: '5px', backgroundColor: '#ffffff', transition: 'height 0.3s' }} />
         </AppBar>
 
-        <div style={{ marginTop: '100px' }}>
+        <div style={{ marginTop: '100px' }}> {/* change this if you want to change the height of timer */}
           {showTimer && (
             <Typography variant="h5" align="center" style={{ display: 'none' }}>
               {formatTime(timer)} {/* Hidden Timer */}
@@ -254,7 +268,7 @@ function App() {
               <Button
                 type="submit"
                 variant="contained"
-                style={{ margin: '20px auto', display: 'block', backgroundColor: '#F7A8CE' }} // Pastel pink button
+                style={{ margin: '20px auto', display: 'block', backgroundColor: '#F7A8CE' }}
               >
                 Let's roll
               </Button>
@@ -293,7 +307,7 @@ function App() {
                     onChange={handleNumLocationsChange}
                     label="Number of Locations"
                   >
-                    {[...Array(10).keys()].map((num) => (
+                    {[...Array(5).keys()].map((num) => (
                       <MenuItem key={num + 1} value={num + 1}>
                         {num + 1}
                       </MenuItem>
@@ -305,7 +319,7 @@ function App() {
               {/* Submit Button to Fetch Locations */}
               <Button
                 variant="contained"
-                style={{ marginTop: '20px', backgroundColor: '#F7A8CE' }} // Pastel pink button
+                style={{ marginTop: '20px', backgroundColor: '#F7A8CE' }}
                 onClick={handleFetchLocations}
                 disabled={!numLocations || !distanceOption}
               >
@@ -359,7 +373,7 @@ function App() {
               {/* Submit Button at the Bottom */}
               <Button
                 variant="contained"
-                style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }} // Pastel pink button
+                style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }}
                 onClick={handleDone}
               >
                 I'm done!
@@ -378,7 +392,14 @@ function App() {
           onClose={handleSnackbarClose}
           message="Image uploaded!"
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          ContentProps={{
+            style: {
+              backgroundColor: '#F7A8CE', // Pink color
+              color: 'white', // Optional: Change text color for better contrast
+            },
+          }}
         />
+
 
         {/* Timer Display after "I'm done" */}
         {done && (
@@ -392,4 +413,3 @@ function App() {
 }
 
 export default App;
-
