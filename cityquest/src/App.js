@@ -1,4 +1,5 @@
 import './App.css';
+import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import {
   TextField,
@@ -135,7 +136,7 @@ function App() {
         maxWidth="sm"
         style={{
           backgroundColor: '#f5f5f5',
-          padding: '20px',
+          padding: '10px', /* adjusted padding */
           borderRadius: '8px',
           minHeight: '100vh',
           display: 'flex',
@@ -165,7 +166,7 @@ function App() {
           </Toolbar>
         </AppBar>
 
-        <div style={{ marginTop: '100px' }}>
+        <div style={{ marginTop: '100px' }}> {/* change this if you want to change the height of timer */}
           {showTimer && (
             <Typography variant="h5" align="center" style={{ display: 'none' }}>
               {formatTime(timer)} {/* Hidden Timer */}
@@ -292,7 +293,14 @@ function App() {
           onClose={handleSnackbarClose}
           message="Image uploaded!"
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          ContentProps={{
+            style: {
+              backgroundColor: '#F7A8CE', // Pink color
+              color: 'white', // Optional: Change text color for better contrast
+            },
+          }}
         />
+
 
         {/* Timer Display after "I'm done" */}
         {done && (
