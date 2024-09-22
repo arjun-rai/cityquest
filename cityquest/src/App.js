@@ -19,6 +19,7 @@ import Confetti from 'react-confetti';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
 import Scrapbook from './Scrapbook';
+import MapView from './MapView'
 
 const theme = createTheme({
   typography: {
@@ -64,6 +65,9 @@ function App() {
   const [showDownloadButton, setShowDownloadButton] = useState(false);
 
   const [sillyScore, setSillyScore] = useState(0)
+
+  const [userLocation, setUserLocation] = useState(null);
+  const [mapMarkers, setMapMarkers] = useState([]);
 
   const images = [
     'image2.png',
@@ -132,8 +136,16 @@ function App() {
       const fetchedLocations = Array.from({ length: numLocations }, (_, index) => ({
         number: index + 1,
         name: response['data']['locations'][index]['location'],
+        latitude: response['data']['locations'][index]['lat'],
+        longitude: response['data']['locations'][index]['lng'],
       }));
       setLocations(fetchedLocations);
+
+      const markers = fetchedLocations.map(loc => ({
+        name: loc.name,
+        position: { lat: loc.latitude, lng: loc.longitude },
+      }));
+      setMapMarkers(markers);
 
       return response;
 
@@ -144,6 +156,19 @@ function App() {
     setDistanceOption('');
     setNumLocations('');
   };
+
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation({ lat: latitude, lng: longitude });
+      });
+    }
+  };
+
+  useEffect(() => {
+    getUserLocation();
+  }, []);
 
 
   const handleUploadImage = async (index) => {
@@ -440,6 +465,7 @@ function App() {
                       )
                     ))}
                   </Grid>
+                  <MapView userLocation={userLocation} mapMarkers={mapMarkers} />
                   <Button
                     variant="contained"
                     style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }}
