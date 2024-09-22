@@ -64,10 +64,12 @@ function App() {
 
   const [showDownloadButton, setShowDownloadButton] = useState(false);
 
-  const [sillyScore, setSillyScore] = useState(0)
+  const [photoScore, setPhotoScore] = useState(0)
 
   const [userLocation, setUserLocation] = useState(null);
   const [mapMarkers, setMapMarkers] = useState([]);
+
+  const [showDoneButton, setShowDoneButton] = useState(true);
 
   const images = [
     'image2.png',
@@ -190,7 +192,7 @@ function App() {
         ]);
         setCurrentSnackbar(`Overview: ${data['data']['locations'][index]['overview']}`);
         setShowSnackbar(true);
-        setSillyScore(sillyScore+response['data']['silly_score'])
+        setPhotoScore(photoScore+response['data']['photo_score'])
         // Hide the tile corresponding to this index
         setHiddenLocations((prevHiddenLocations) => [...prevHiddenLocations, index]);
       } else {
@@ -262,6 +264,7 @@ function App() {
     setIsTimerRunning(false);
     setConfettiVisible(true);
     setShowDownloadButton(true);
+    setShowDoneButton(false); // Hide the "I'm done!" button
   };
 
   const formatTime = (seconds) => {
@@ -300,6 +303,7 @@ function App() {
           flexDirection: 'column',
           justifyContent: 'center',
           opacity: 0.7,
+          height: '100%'
         }}
       >
         <AppBar
@@ -336,9 +340,15 @@ function App() {
               <Typography variant="h6" gutterBottom>
                 Get ready to explore your city like never before.
               </Typography>
+              <Typography variant="h8" gutterBottom>
+              Play by yourself to try to get a high score, or compete against friends!
+                The score is based off of how fast you get to locations and how good the 
+                photos you take are!
+              </Typography>
+              <br></br>
               <Button
                 variant="contained"
-                style={{ backgroundColor: '#F7A8CE' }}
+                style={{ backgroundColor: '#F7A8CE', marginTop: '20px' }} // Added marginTop
                 onClick={handleLandingPageContinue}
               >
                 Continue
@@ -402,9 +412,9 @@ function App() {
                       onChange={handleNumLocationsChange}
                       label="Number of Locations"
                     >
-                      {[...Array(5).keys()].map((num) => (
-                        <MenuItem key={num + 1} value={num + 1}>
-                          {num + 1}
+                      {[...Array(4).keys()].map((num) => (
+                        <MenuItem key={num + 2} value={num + 2}>
+                          {num + 2}
                         </MenuItem>
                       ))}
                     </Select>
@@ -466,17 +476,26 @@ function App() {
                     ))}
                   </Grid>
                   <MapView userLocation={userLocation} mapMarkers={mapMarkers} />
-                  <Button
-                    variant="contained"
-                    style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }}
-                    onClick={handleDone}
-                    disabled={!allImagesHidden}
-                  >
-                    I'm done!
-                  </Button>
+                  {showDoneButton && (
+                    <Button
+                      variant="contained"
+                      style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto', backgroundColor: '#F7A8CE' }}
+                      onClick={handleDone}
+                      disabled={!allImagesHidden}
+                    >
+                      I'm done!
+                    </Button>
+                  )}
                 </div>
               )}
             </>
+          )}
+          {done && (
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <Typography variant="h5">Your time: {formatTime(timer)}</Typography>
+            <Typography variant="h5">Photo Score: {photoScore}/{originalImages.length*10}</Typography>
+            <Typography variant="h5">Combined Score: {Math.floor(7200/timer) * originalImages.length*10}</Typography>
+          </div>
           )}
         </div>
 
@@ -490,19 +509,12 @@ function App() {
           ContentProps={{
             style: {
               backgroundColor: '#F7A8CE',
-              color: 'white',
+              color: 'black',
               whitespace: 'pre-line'
             },
           }}
           onClick={handleSnackbarClose}
         />
-
-        {done && (
-          <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <Typography variant="h5">Your time: {formatTime(timer)}</Typography>
-            <Typography variant="h5">Silly Score: {sillyScore}/{originalImages.length*10}</Typography>
-          </div>
-        )}
       </Container>
     </ThemeProvider>
   );

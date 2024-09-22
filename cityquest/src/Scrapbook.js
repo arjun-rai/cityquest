@@ -11,7 +11,7 @@ const Scrapbook = ({ images, showButton}) => {
     const calculatePositions = () => {
       const imageWidth = 150; // Fixed width of each image
       const imageHeight = 150;
-      const padding = 10; // Padding between images
+      const padding = 5; // Padding between images
 
       // Dynamically increase the scrapbook size based on the number of images
       const numRows = Math.ceil(Math.sqrt(images.length)); // Determine number of rows/columns

@@ -27,7 +27,7 @@ def handler(event, context):
 
     locations_to_visit = clientOA.chat.completions.create(
                 model="gpt-4o",
-                messages=[{"role": "user", "content": 'create a list of {NUM} cool things to do, see, and take pictures of in the location {CITY} for a scavenger hunt. These locations should all be able to be visited by using the {TRAN} form of transportation in under 3 hours. Include a brief description of what to do/take pictures of at the location'.format(CITY=LOCATION, NUM=NUMBER_OF_PLACES, TRAN=TRANSPORTATION)}], max_tokens=4096, response_model=locations
+                messages=[{"role": "user", "content": 'create a list of {NUM} cool things to do, see, and take pictures of in the location {CITY} for a scavenger hunt. These locations should all be able to be visited by using the {TRAN} form of transportation in under 2 hours. Include a brief description of what to do/take pictures of at the location'.format(CITY=LOCATION, NUM=NUMBER_OF_PLACES, TRAN=TRANSPORTATION)}], max_tokens=4096, response_model=locations
                 )
     body = locations_to_visit.model_dump()
     
