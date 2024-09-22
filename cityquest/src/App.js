@@ -23,7 +23,7 @@ import MapView from './MapView'
 
 const theme = createTheme({
   typography: {
-    fontFamily: 'Mali, cursive',
+    fontFamily: 'Noteworthy, Bold',
     fontWeightBold: 700,
   },
   palette: {
